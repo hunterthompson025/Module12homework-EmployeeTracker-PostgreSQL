@@ -8,9 +8,12 @@ const { writeFile } = require('fs').promises;
 const promptUser = () => {
   return inquirer.prompt([
     {
-      type: 'input',
-      name: 'name',
-      message: 'What is your name?',
+      type: 'list',
+      name: 'start',
+      message: 'What would you like to do?',
+      choices: ['View All Departments', 'View All Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role']
     },  
     ]);
 };
+
+promptUser();
