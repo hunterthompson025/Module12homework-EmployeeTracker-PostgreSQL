@@ -2,8 +2,8 @@
 SELECT *
 FROM department;
 
--- View All Employees
-SELECT *
+-- View All Employees (idea as to what I need to do for the table display in the app for viewing employees)
+SELECT id, first_name, last_name, r.title, r.salary, concat manager(first_name + last_name);
 FROM employee;
 
 --View All Roles
