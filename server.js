@@ -57,7 +57,13 @@ const viewEmployees = () => {
 };
 
 const addDepartment = () => {
-
+  const query = `INSERT INTO department VALUES ${res.params.name}`
+  pool.query(query, (err, res) => {
+    if(err) throw err;
+    console.log('Add Department');
+    console.table(res.rows);
+    promptUser();
+  });
 };
 
 const addRole = () => {
