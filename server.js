@@ -42,4 +42,34 @@ const promptUser = () => {
     ]);
 };
 
+const viewDepartments = () => {
+  const query = `SELECT *  FROM department`;
+  pool.query(query, (err, res) => {
+    if(err) throw err;
+    console.log('View all Departments');
+    console.table(res.rows);
+    promptUser();
+  });
+};
+
+const viewEmployees = () => {
+
+};
+
+const addDepartment = () => {
+
+};
+
+const addRole = () => {
+
+};
+
+const addEmployee = () => {
+
+};
+
+const updateEmployeeRole = () => {
+
+};
+
 promptUser();
