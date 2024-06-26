@@ -1,81 +1,95 @@
 const inquirer = require('inquirer');
-const express = require('express');
-// Import and require Pool (node-postgres)
-// We'll be creating a Connection Pool. Read up on the benefits here: https://node-postgres.com/features/pooling
 const { Pool } = require('pg');
 
 const PORT = process.env.PORT || 3001;
-const app = express();
-
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
 
 // Connect to database
 const pool = new Pool(
   {
-    // TODO: Enter PostgreSQL username
     user: 'postgres',
-    // TODO: Enter PostgreSQL password
     password: '1',
     host: 'localhost',
     database: 'employees_db'
   },
   console.log(`Connected to the employees_db database.`)
-)
+);
 
-pool.connect();
+pool.connect()
+  .then(() => console.log('Connected to the PostgreSQL database'))
+  .catch(err => console.error('Error connecting to the database:', err));
 
-// Node v10+ includes a promises module as an alternative to using callbacks with file system methods.
-const { writeFile } = require('fs').promises;
-
-// Use writeFileSync method to use promises instead of a callback function
-
-const promptUser = () => {
-  return inquirer.prompt([
-    {
-      type: 'list',
-      name: 'start',
-      message: 'What would you like to do?',
-      choices: ['View All Departments', 'View All Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role']
-    },  
-    ]);
-};
-
-const viewDepartments = () => {
-  const query = `SELECT *  FROM department`;
-  pool.query(query, (err, res) => {
-    if(err) throw err;
-    console.log('View all Departments');
-    console.table(res.rows);
+const viewDepartments = async () => {
+  try {
+    const query = 'SELECT *  FROM department';
+    const res = await pool.query(query);
+    console.log('View All Departments selected. Departments:', res.rows);
     promptUser();
-  });
+  } catch (err) {
+    console.error('Error Viewing Departments', err);
+  }
 };
 
-const viewEmployees = () => {
+  const viewEmployees = () => {
 
-};
+  };
 
-const addDepartment = () => {
-  const query = `INSERT INTO department VALUES ${res.params.name}`
-  pool.query(query, (err, res) => {
-    if(err) throw err;
-    console.log('Add Department');
-    console.table(res.rows);
-    promptUser();
-  });
-};
+  const addDepartment = () => {
+    const query = `INSERT INTO department VALUES ${res.params.name}`
+    pool.query(query, (err, res) => {
+      if (err) throw err;
+      console.log('Add Department');
+      console.table(res.rows);
+      promptUser();
+    });
+  };
 
-const addRole = () => {
+  const addRole = () => {
 
-};
+  };
 
-const addEmployee = () => {
+  const addEmployee = () => {
 
-};
+  };
 
-const updateEmployeeRole = () => {
+  const updateEmployeeRole = () => {
 
-};
+  };
 
-promptUser();
+  const promptUser = () => {
+    return inquirer.prompt([
+      {
+        type: 'list',
+        name: 'prompt',
+        message: 'What would you like to do?',
+        choices: ['View All Departments', 'View All Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role'],
+      },
+    ]).then((answers) => {
+      console.log('User selected:', answers.prompt);
+      switch (answers.prompt) {
+        case 'View All Departments':
+          viewDepartments();
+          break;
+        case 'View All Employees':
+          viewEmployees();
+          break;
+        case 'Add Department':
+          addDepartment();
+          break;
+        case 'Add Role':
+          addRole();
+          break;
+        case 'Add Emplyoee':
+          addEmployee();
+          break;
+        case 'Update Employee Role':
+          updateEmployeeRole();
+          break;
+        default:
+          console.log('Please choose an option.');
+      }
+    }).catch((error) => {
+      console.error('Error during prompt:', error)
+    });
+  };
+
+  promptUser();
