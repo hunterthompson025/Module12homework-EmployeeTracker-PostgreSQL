@@ -22,7 +22,6 @@ const viewDepartments = async () => {
   try {
     const query = 'SELECT *  FROM department';
     const res = await pool.query(query);
-    console.log('View All Departments');
     console.table(res.rows);
     promptUser();
   } catch (err) {
@@ -34,7 +33,6 @@ const viewRoles = async() => {
   try{
     const query = 'SELECT * FROM role';
     const res = await pool.query(query);
-    console.log('View all Roles');
     console.table(res.rows);
     promptUser();
   } catch (err) {
@@ -42,8 +40,15 @@ const viewRoles = async() => {
   }
 };
 
-const viewEmployees = () => {
-
+const viewEmployees = async() => {
+  try{
+    const query = `SELECT e.id, e.first_name, e.last_name, r.title, d.name, r.salary, CASE WHEN e.manager_id IS NULL THEN NULL ELSE CONCAT(m.first_name, ' ', m.last_name) END as manager_name FROM employee as e JOIN role as r ON r.id = e.role_id JOIN department as d ON d.id = r.department_id LEFT JOIN employee as m ON e.manager_id = m.id`;
+    const res = await pool.query(query);
+    console.table(res.rows);
+    promptUser();
+  } catch (err) {
+    console.error('Error viewing Employees', err.message);
+  }
 };
 
 const addDepartment = async () => {
@@ -205,8 +210,55 @@ const addEmployee = async () => {
   }
 };
 
-const updateEmployeeRole = () => {
+const updateEmployeeRole = async() => {
+  try {
 
+    const employeesQuery = `SELECT e.id, e.first_name, e.last_name FROM employee e`;
+    const employeesResult = await pool.query(employeesQuery);
+    const employees = employeesResult.rows;
+
+    const employeesChoices = employees.map(employee => ({
+      name: `${employee.first_name} ${employee.last_name}`,
+      value: employee.id
+    }));
+
+    const rolesQuery = `SELECT r.id, r.title FROM role r`;
+    const rolesResult = await pool.query(rolesQuery);
+    const roles = rolesResult.rows;
+
+    const rolesChoices = roles.map(role => ({
+      name: `${role.title}`,
+      value: role.id
+    }))
+
+    const { employee_id, role_id } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'employee_id',
+        message: `What employee would you like to their role?`,
+        choices: employeesChoices,
+      },
+      {
+        type: 'list',
+        name: 'role_id',
+        message: `What role would you like to update them to?`,
+        choices: rolesChoices,
+      },
+    ]);
+
+    const selectedEmployee = employees.find(employee => employee.id === employee_id);
+    const selectedRole = roles.find(role => role.id === role_id);
+
+    console.log('eid', employee_id);
+    console.log('rid',role_id);
+
+    const query = `UPDATE employee SET role_id = $2 WHERE id = $1`;
+    const res = await pool.query(query, [employee_id, role_id]);
+    console.log(`${selectedEmployee.first_name} ${selectedEmployee.last_name} updated to role ${selectedRole.title}`);
+    promptUser();
+  } catch (err) {
+    console.error('Error updating employee' ,err.message);
+  };
 };
 
 const promptUser = () => {
@@ -218,7 +270,6 @@ const promptUser = () => {
       choices: ['View All Departments', 'View All Employees', 'View All Roles', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role'],
     },
   ]).then((answers) => {
-    console.log('User selected:', answers.prompt);
     switch (answers.prompt) {
       case 'View All Departments':
         viewDepartments();
