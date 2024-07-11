@@ -46,7 +46,7 @@ const viewRoles = async() => {
 // Function to View all Employees
 const viewEmployees = async() => {
   try{
-    const query = `SELECT e.id, e.first_name, e.last_name, r.title, d.name, r.salary, CASE WHEN e.manager_id IS NULL THEN NULL ELSE CONCAT(m.first_name, ' ', m.last_name) END as manager_name FROM employee as e JOIN role as r ON r.id = e.role_id JOIN department as d ON d.id = r.department_id LEFT JOIN employee as m ON e.manager_id = m.id`;
+    const query = `SELECT e.id as "Employee Id", e.first_name as "First Name", e.last_name as "Last Name", r.title as "Title", d.name as "Department Name", r.salary as "Salary", CASE WHEN e.manager_id IS NULL THEN NULL ELSE CONCAT(m.first_name, ' ', m.last_name) END as "Manager Name" FROM employee as e JOIN role as r ON r.id = e.role_id JOIN department as d ON d.id = r.department_id LEFT JOIN employee as m ON e.manager_id = m.id`;
     const res = await pool.query(query);
     console.table(res.rows);
     promptUser();
